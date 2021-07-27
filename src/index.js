@@ -120,7 +120,6 @@ function renderImgCard(photos) {
 }
 
 
-
 // import axios from "axios";
 
 // const formEl = document.querySelector('.search-form');

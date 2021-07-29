@@ -23,25 +23,37 @@ async getImg() {
     const key = 'key=22670946-2b796d5e22242051989a80e4c';
     const response = await axios.get(`${url}/?${key}&q=${this.name}&image_type=photo&orientation=horizontal&safesearch=true&page=${this.page}&per_page=40`);
     const photos = await response.data.hits;
-    
+    const totalHits = await response.data.totalHits;
+
+   const  loadPhoto = totalHits - photos.length;
     if (photos.length === 0) {
       loadMoreBtn.classList.add('is-hidden');
-      Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.')
-      
-  }
-
-
+      Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.')    
+  } else
+     
+           if (response.ok) {
+      throw new Error(response.status);
+        }
+     
     
-
-    if(photos.length < 40){
-      Notiflix.Notify.failure(`We're sorry, but you've reached the end of search results.`)
+    else if (loadPhoto <= 1) {
+          renderImgCard(photos)
+      loadMoreBtn.classList.add('is-hidden');
+      Notiflix.Notify.warning(`We're sorry, but you've reached the end of search results.`) 
+        }
+    
+   else  {
+       this.incrementPage();
+        loadMoreBtn.classList.remove('is-hidden');
+       renderImgCard(photos)
     }
-    this.incrementPage();
-   
-    renderImgCard(photos)
+
+  
+  
       
   } catch (error) {
-
+loadMoreBtn.classList.add('is-hidden');
+    Notiflix.Notify.warning(`We're sorry, but you've reached the end of search results.`) 
   }
 }
   incrementPage() {
@@ -70,23 +82,29 @@ const searchPhoto = new SearchPhoto();
 async function onSearchFormUrlSubmit(e) {
     e.preventDefault();
   searchPhoto.query = await e.currentTarget.elements.searchQuery.value;
-
-
-
-   if (searchPhoto.query === "") {
-     galleryUrl.innerHTML = " ";
-     loadMoreBtn.classList.add('is-hidden');
+       
+  
+  if (e.currentTarget.elements.searchQuery.value.trim() === "") {
         return
-   }
-  galleryUrl.innerHTML = " ";
-  searchPhoto.resetPage();
-  searchPhoto.getImg();
-  loadMoreBtn.classList.remove('is-hidden');
+  }
+  else if (searchPhoto.query === "") {
+    galleryUrl.innerHTML = " ";
+    loadMoreBtn.classList.add('is-hidden');
+    return
+  } else {
+  
+    galleryUrl.innerHTML = " ";
+    searchPhoto.resetPage();
+    searchPhoto.getImg();
+    loadMoreBtn.classList.add('is-hidden');
+  }
     
 }
 
 
 async function onLoadMoreBtnClick() {
+
+  
  searchPhoto.getImg() 
 }
 
@@ -118,56 +136,6 @@ function renderImgCard(photos) {
 
     
 }
-
-
-// import axios from "axios";
-
-// const formEl = document.querySelector('.search-form');
-// const searchFormInput = document.querySelector('#search-form');
-// const gallery = document.querySelector(".gallery");
-
-// formEl.addEventListener('submit', findPhoto);
-// function findPhoto(e) {
-//     e.preventDefault();
-
-//     return fetchPhotos(e.currentTarget.elements.searchQuery.value);
-//  }
-
-// function fetchPhotos(name) {
-//    return axios({
-//         method: "GET",
-//         url: "https://pixabay.com/api/",
-//         params: {
-//             key: "22673335-b99cca5659da707c56ab45ca0",
-//             q: name,
-//             image_type: "photo",
-//             orientation: "horizontal",
-//             safesearch: "true"
-//         }
-//    }).then(response => {
-//        response.data.hits.forEach(element => {
-//            const text = `<div class="photo-card">
-//   <img src="${element.webformatURL}" alt="" loading="lazy" />
-//   <div class="info">
-//     <p class="info-item">
-//       <b>Likes: ${element.likes}</b>
-//     </p>
-//     <p class="info-item">
-//       <b>Views: ${element.views}</b>
-//     </p>
-//     <p class="info-item">
-//       <b>Comments: ${element.comments}</b>
-//     </p>
-//     <p class="info-item">
-//       <b>Downloads: ${element.downloads}</b>
-//     </p>
-//   </div>
-// </div>`;
-//       gallery.insertAdjacentHTML('beforeend', text);
-//        });
-      
-//    });
-// };
 
 
  
